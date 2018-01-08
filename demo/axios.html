@@ -33,9 +33,6 @@
                             headers:{
                                 token:"jack"
                             },
-                            before:function(){
-                                console.log("before init")
-                            }
                         }).then(res =>{
                             this.msg = res.msg
                         }).catch(function(error){
