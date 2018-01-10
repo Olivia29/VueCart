@@ -17,6 +17,8 @@
         methods:{
           increment(){
             this.$emit("incre");
+
+            import('./../util')
           },
           decrement(){
             this.$emit("decre");

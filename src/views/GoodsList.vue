@@ -1,30 +1,120 @@
 <template>
-    <div>
-        这是商品列表页面
-        <span>{{$route.params.goodsId}}</span>
-        <router-link to="/goods/title">显示商品标题</router-link>
-        <router-link to="/goods/img">显示商品图片</router-link>
-        <div>
-        <router-view></router-view>
+<div>
+  <nav-header></nav-header>
+  <nav-bread>
+    <span>Goods</span>
+  </nav-bread>
+    <div class="accessory-result-page accessory-page">
+      <div class="container">
+        <div class="filter-nav">
+          <span class="sortby">Sort by:</span>
+          <a href="javascript:void(0)" class="default cur">Default</a>
+          <a href="javascript:void(0)" class="price">Price <svg class="icon icon-arrow-short"><use xlink:href="#icon-arrow-short"></use></svg></a>
+          <a href="javascript:void(0)" class="filterby stopPop" @click="showFilterPop">Filter by</a>
         </div>
-        <router-link v-bind:to="{name:'cart',params:{cartId:123}}">跳转到购物车页面</router-link>
+        <div class="accessory-result">
+          <!-- filter -->
+          <div class="filter stopPop" id="filter" v-bind:class="{'filterby-show':filterBy}" >
+            <dl class="filter-price">
+              <dt>Price:</dt>
+              <dd><a href="javascript:void(0)" v-bind:class="{'cur':priceChecked=='all'}" @click="setPriceFilter('all')">All</a></dd>
+              <dd v-for="(price,index) in priceFilter">
+                <a href="javascript:void(0)"  @click="setPriceFilter(index)" v-bind:class="{'cur':priceChecked==index}">{{price.startPrice}} - {{price.endPrice}}</a>
+              </dd>
+            </dl>
+          </div>
+
+          <!-- search result accessories list -->
+          <div class="accessory-list-wrap">
+            <div class="accessory-list col-4">
+              <ul>
+                <li v-for="(item,index) in goodsList">
+                  <div class="pic">
+                    <a href="#"><img v-lazy="'/static/'+ item.productImg" alt=""></a>
+                  </div>
+                  <div class="main">
+                    <div class="name">{{item.productName}}</div>
+                    <div class="price">{{item.productPrice}}</div>
+                    <div class="btn-area">
+                      <a href="javascript:;" class="btn btn--m">加入购物车</a>
+                    </div>
+                  </div>
+                </li>
+
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+    <div class="md-overlay" v-show="overLayFlag" @click="closePop"></div>
+  <nav-footer></nav-footer>
+</div>
 </template>
 <style>
 </style>
 <script>
+    import './../assets/css/base.css'
+    import './../assets/css/product.css'
+    import './../assets/css/login.css'
+    import NavHeader from '@/components/NavHeader.vue'
+    import NavFooter from '@/components/NavFooter.vue'
+    import NavBread from '@/components/NavBread.vue'
+    import axios from 'axios'
     export default{
         data(){
             return{
-                msg: 'hello world'
+                goodsList: [],
+                priceFilter:[
+                  {
+                    startPrice:'0.00',
+                    endPrice:'500.00'
+                  },
+                  {
+                    startPrice:'500.00',
+                    endPrice:'1000.00'
+                  },
+                  {
+                    startPrice:'1000.00',
+                    endPrice:'2000.00'
+                  },
+                  {
+                    startPrice:'2000.00',
+                    endPrice:'3000.00'
+                  }
+                ],
+                priceChecked:'all',
+                filterBy:false,
+                overLayFlag:false
             }
         },
+        components:{
+          NavHeader,
+          NavFooter,
+          NavBread
+        },
+        mounted:function (){
+          this.getGoodsList();
+        },
         methods: {
-            jump() {
-                // this.$router.push('/cart')
-                // this.$router.push({path:'/cart?goodsId=123'})
-                this.$router.go(-2)
-            }
+          getGoodsList (){
+              axios.get("/api").then((result)=>{
+                var res = result.data;
+                this.goodsList = res.data.result;
+              })
+          },
+          showFilterPop(){
+            this.filterBy = true;
+            this.overLayFlag = true
+          },
+          setPriceFilter(index){
+            this.priceChecked = index;
+            this.closePop()
+          },
+          closePop(){
+            this.filterBy = false;
+            this.overLayFlag = false
+          }
         }
     }
 </script>
